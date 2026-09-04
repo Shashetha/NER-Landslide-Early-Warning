@@ -1,14 +1,17 @@
-.venv/
-venv/
+# Python cache
 __pycache__/
 *.pyc
 
+# Python virtual environments
+.venv/
+.venv-*/
+venv/
+
+# Large NASA IMERG rainfall files
+data/rainfall/*
+
+# Environment / secrets
 .env
 
-data/raw/*
-data/processed/*
-data/rainfall/*
-*.pkl
-*.joblib
-
+# VS Code
 .vscode/
