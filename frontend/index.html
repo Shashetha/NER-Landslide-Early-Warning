@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Landslide Sentinel Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+
+<body>
+
+    <!-- Top Header -->
+    <header class="top-header">
+
+        <div>
+            <h1>🌍 Landslide Sentinel</h1>
+            <p>Landslide Risk Monitoring System</p>
+        </div>
+<div class="live-status">
+    🟢 LIVE MONITORING
+</div>
+        <div class="notification">
+            🔔
+        </div>
+
+    </header>
+
+
+    <!-- Main Layout -->
+    <div class="dashboard-container">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+    <h2>Menu</h2>
+
+    <button onclick="showSection('dashboard')">
+        Dashboard
+    </button>
+
+    <button onclick="showSection('map-section')">
+        Risk Map
+    </button>
+
+    <button onclick="showSection('alerts')">
+        Alerts
+    </button>
+
+    <button onclick="showSection('reports')">
+        Reports
+    </button>
+
+</aside>
+
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+    <section id="dashboard">
+
+            <h2>Risk Monitoring Dashboard</h2>
+
+            <p>
+                Monitor landslide risk levels and affected locations.
+            </p>
+<div class="last-updated">
+    🕒 Last Updated: <span id="last-updated-time">Loading...</span>
+</div>
+<button class="refresh-data-btn" onclick="refreshData()">
+    🔄 Refresh Data
+</button>
+
+            <!-- Risk Cards -->
+             <div class="total-location-card">
+    <h3>📍 Total Monitored Locations</h3>
+    <p>4</p>
+    <small>Locations currently being monitored</small>
+</div>
+         <div class="risk-card critical" onclick="showRiskOnMap('critical')">
+    <h3>🔴 Critical</h3>
+    <p>1 Location</p>
+    <small>Immediate attention required</small>
+    <strong>Itanagar</strong>
+</div>
+
+               <div class="risk-card high" onclick="showRiskOnMap('high')">
+    <h3>🟠 High</h3>
+    <p>1 Location</p>
+    <small>Monitor closely</small>
+    <strong>Shillong</strong>
+</div>
+
+                <div class="risk-card moderate" onclick="showRiskOnMap('moderate')">
+    <h3>🟡 Moderate</h3>
+    <p>1 Location</p>
+    <small>Continue monitoring</small>
+    <strong>Guwahati</strong>
+</div>
+                           <div class="risk-card low" onclick="showRiskOnMap('low')">
+    <h3>🟢 Low</h3>
+    <p>1 Location</p>
+    <small>Normal monitoring</small>
+    <strong>Imphal</strong>
+</div>
+</div>
+
+<!-- System Status -->
+<div class="system-status">
+
+    <h3>System Status</h3>
+
+    <div class="status-item">
+        <span>🗺️ Map Service</span>
+        <strong>🟢 Online</strong>
+    </div>
+
+    <div class="status-item">
+        <span>📡 Monitoring System</span>
+        <strong>🟢 Active</strong>
+    </div>
+
+    <div class="status-item">
+        <span>🔗 Data Connection</span>
+        <strong>🟢 Ready</strong>
+    </div>
+
+</div>
+<p class="system-healthy">
+    ✅ All monitoring services are operating normally.
+</p>
+<div class="data-sources">
+    <h3>📡 Data Sources</h3>
+
+    <div class="data-source-item">
+        <span>🌧️ Rainfall</span>
+        <strong>Available</strong>
+    </div>
+
+    <div class="data-source-item">
+        <span>⛰️ Slope Data</span>
+        <strong>Available</strong>
+    </div>
+
+    <div class="data-source-item">
+        <span>💧 Soil Moisture</span>
+        <strong>Available</strong>
+    </div>
+
+    <div class="data-source-item">
+        <span>🛰️ Satellite Data</span>
+        <strong>Ready</strong>
+    </div>
+</div>
+<div class="monitoring-summary">
+    <h3>📊 Monitoring Summary</h3>
+
+    <div class="summary-item">
+        <span>📍 Monitored Locations</span>
+        <strong>4</strong>
+    </div>
+
+    <div class="summary-item">
+        <span>🔴 Critical Risk</span>
+        <strong>1</strong>
+    </div>
+
+    <div class="summary-item">
+        <span>🟠 High Risk</span>
+        <strong>1</strong>
+    </div>
+
+    <div class="summary-item">
+        <span>🟢 Low Risk</span>
+        <strong>1</strong>
+    </div>
+</div>
+<div class="quick-overview">
+    <h3>⚡ Quick Overview</h3>
+    <p>🗺️ Monitoring is active across 4 locations.</p>
+    <p>⚠️ 1 location requires immediate attention.</p>
+    <p>📡 All monitoring services are currently operational.</p>
+</div>
+<div class="current-risk">
+    <h3>⚠️ Current Risk Level</h3>
+    <p>CRITICAL</p>
+    <small>Highest risk detected: Itanagar</small>
+</div>
+<div class="system-information">
+    <h3>🖥️ System Information</h3>
+    <p><strong>System:</strong> Landslide Sentinel</p>
+    <p><strong>Monitoring Mode:</strong> Real-Time</p>
+    <p><strong>Update Frequency:</strong> Every 5 Minutes</p>
+    <p><strong>Locations:</strong> 4 Active</p>
+    <p><strong>Data Confidence:</strong> 92% </p>
+    <p><strong>Monitoring Coverage:</strong> 100% </p>
+    <p><strong>Active Sensors:</strong> 24 </p>
+    <p><strong>Network Status:</strong> Connected 🟢</p>
+    <p><strong>Database Status:</strong> Connected 🟢</p>
+    <p><strong>System Health:</strong> Excellent 🟢</p>
+    
+</div>
+<div class="data-sync">
+    <span>🔄 Last Data Sync</span>
+    <strong id="data-sync-status">Just now</strong>
+</div>
+
+</section>
+
+
+<!-- Map Area -->
+<section class="map-section" id="map-section">
+
+                <h2>Landslide Risk Map</h2>
+<p class="map-description">
+    📍 Real-time visualization of landslide risk locations and severity levels.
+</p>
+<div class="map-status">
+    🟢 Monitoring Active
+    <span>•</span>
+    📍 4 Locations Monitored
+</div>
+                <div id="map"></div>
+                <div class="map-controls-info">
+    🗺️ Use the map to explore monitored locations
+</div>
+<div class="selected-location">
+    <h3>📍 Selected Location</h3>
+    <p>No location selected. Click a map marker to view details.</p>
+
+    <button class="clear-selection-btn" onclick="clearSelectedLocation()">
+        ✖ Clear Selection
+    </button>
+    <p class="map-tip">💡 Tip: Click a marker on the map to view detailed risk information.</p>
+</div>
+                <div class="map-legend">
+
+    <h3>Risk Level</h3>
+
+    <p>🔴 Critical</p>
+    <p>🟠 High</p>
+    <p>🟡 Moderate</p>
+    <p>🟢 Low</p>
+    <button class="back-dashboard-btn" onclick="goToDashboard()">
+    ← Back to Dashboard
+</button>
+
+</div>
+<div class="map-risk-summary">
+    <h3>📊 Risk Summary</h3>
+    <p>📍 Total Locations: <strong>4</strong></p>
+    <p>🔴 Critical: <strong>1</strong></p>
+    <p>🟠 High: <strong>1</strong></p>
+    <p>🟡 Moderate: <strong>1</strong></p>
+    <p>🟢 Low: <strong>1</strong></p>
+</div>
+
+            </section>
+<section id="alerts" class="content-section">
+
+    <h2>🚨 Alerts</h2>
+
+    <div class="alert-status-box">
+        <div class="alert-icon">✅</div>
+
+        <div>
+            <h3>No Active Alerts</h3>
+            <p>
+                There are currently no active landslide alerts.
+            </p>
+            <small>
+                The monitoring system is operating normally.
+            </small>
+        </div>
+    </div>
+
+</section>
+<section id="reports" class="content-section">
+
+    <h2>📋 Reports</h2>
+
+    <div class="report-status-box">
+        <div class="report-icon">📄</div>
+
+        <div>
+            <h3>Field Reports</h3>
+            <p>
+                No field reports have been submitted yet.
+            </p>
+            <small>
+                Field reports will appear here when submitted.
+            </small>
+        </div>
+    </div>
+
+</section>
+        </main>
+
+    </div>
+
+
+    <footer>
+        <p>© 2026 Landslide Sentinel</p>
+    </footer>
+
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
