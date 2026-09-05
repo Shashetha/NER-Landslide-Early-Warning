@@ -1,0 +1,234 @@
+.container {
+  min-height: 100vh;
+  background: var(--bg-page);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 3rem;
+  background: var(--primary-color);
+  border-bottom: none;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.logoIcon {
+  color: #60a5fa;
+}
+
+.hero {
+  padding: 5rem 2rem;
+  text-align: center;
+  background: linear-gradient(160deg, var(--primary-color) 0%, #1e3a5f 100%);
+  display: flex;
+  justify-content: center;
+}
+
+.heroContent {
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  background: rgba(96, 165, 250, 0.2);
+  color: #93c5fd;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.03em;
+}
+
+.title span {
+  color: #60a5fa;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  line-height: 1.65;
+  margin-bottom: 2.5rem;
+  max-width: 600px;
+}
+
+.heroButtons {
+  display: flex;
+  gap: 1rem;
+}
+
+.features {
+  padding: 5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.sectionHeader h2 {
+  font-size: 1.875rem;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.sectionHeader p {
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.featureCard {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  border-top: 3px solid var(--secondary-color);
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.2s;
+}
+
+.featureCard:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.featureIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--secondary-light);
+  color: var(--secondary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.featureCard h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-dark);
+  font-weight: 700;
+}
+
+.featureCard p {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.howItWorks {
+  padding: 5rem 2rem;
+  background: var(--primary-color);
+  border-top: none;
+  border-bottom: none;
+}
+
+.howItWorks .sectionHeader h2 {
+  color: #ffffff;
+}
+
+.howItWorks .sectionHeader p {
+  color: #94a3b8;
+}
+
+.stepsGrid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+
+.stepCard {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.stepNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: var(--secondary-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+}
+
+.stepCard h3 {
+  font-size: 1.05rem;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.stepCard p {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  line-height: 1.55;
+}
+
+.footer {
+  margin-top: auto;
+  padding: 1.5rem 2rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  background: var(--primary-color);
+  color: #475569;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2.25rem;
+  }
+
+  .header {
+    padding: 1rem 1.5rem;
+  }
+
+  .heroButtons {
+    flex-direction: column;
+    width: 100%;
+  }
+}
