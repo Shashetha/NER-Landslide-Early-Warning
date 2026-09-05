@@ -1,0 +1,41 @@
+.gaugeContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.svg {
+  transform: rotate(-90deg);
+}
+
+.backgroundCircle {
+  transition: stroke 0.3s;
+}
+
+.progressCircle {
+  transition: stroke-dashoffset 1s ease-in-out, stroke 0.3s;
+}
+
+.gaugeContent {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.percentage {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.label {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  font-weight: 500;
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
