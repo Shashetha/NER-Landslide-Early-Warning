@@ -1,0 +1,83 @@
+.container {
+  background: var(--white);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  letter-spacing: -0.01em;
+  margin-bottom: 0;
+}
+
+.viewAll {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--secondary-color);
+  font-weight: 600;
+}
+
+.alertList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.alertItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-light);
+  border: 1px solid var(--border-color);
+  transition: all 0.15s;
+  text-decoration: none;
+}
+
+.alertItem:hover {
+  background: var(--bg-hover);
+  border-color: var(--secondary-color);
+}
+
+.alertMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.locationRow {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.pinIcon {
+  color: var(--secondary-color);
+}
+
+.locationName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.timeAgo {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
