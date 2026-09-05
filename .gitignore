@@ -7,8 +7,10 @@ __pycache__/
 .venv-*/
 venv/
 
-# Large NASA IMERG rainfall files
-data/rainfall/*
+# Large raw downloaded datasets
+data/rainfall/
+data/soil_moisture/
+data/terrain/
 
 # Environment / secrets
 .env
