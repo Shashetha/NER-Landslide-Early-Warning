@@ -1,7 +1,5 @@
 const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
 async function fetchAPI(endpoint, options = {}) {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
@@ -20,11 +18,23 @@ async function fetchAPI(endpoint, options = {}) {
 }
 
 export const api = {
-  async getRiskPrediction(latitude, longitude) {
+  async getRiskPrediction(latitude, longitude, environmentalData = {}) {
+    const body = {
+      latitude,
+      longitude,
+      ...(environmentalData.rainfall_1d != null && { rainfall_1d: environmentalData.rainfall_1d }),
+      ...(environmentalData.rainfall_3d != null && { rainfall_3d: environmentalData.rainfall_3d }),
+      ...(environmentalData.rainfall_7d != null && { rainfall_7d: environmentalData.rainfall_7d }),
+      ...(environmentalData.elevation_m != null && { elevation_m: environmentalData.elevation_m }),
+      ...(environmentalData.slope_degrees != null && { slope_degrees: environmentalData.slope_degrees }),
+      ...(environmentalData.soil_moisture != null && { soil_moisture: environmentalData.soil_moisture }),
+    };
+
     const data = await fetchAPI('/predictions', {
       method: 'POST',
-      body: JSON.stringify({ latitude, longitude })
+      body: JSON.stringify(body)
     });
+
     return {
       predictionId: data.prediction_id,
       latitude: data.latitude,
@@ -33,20 +43,27 @@ export const api = {
       probability: data.probability,
       confidence: data.confidence,
       features: {
-        rainfall: data.features.rainfall,
-        slope: data.features.slope,
-        elevation: data.features.elevation,
+        rainfall1d: data.features.rainfall_1d,
+        rainfall3d: data.features.rainfall_3d,
+        rainfall7d: data.features.rainfall_7d,
+        elevationM: data.features.elevation_m,
+        slopeDegrees: data.features.slope_degrees,
         soilMoisture: data.features.soil_moisture,
-        temperature: data.features.temperature
       },
       explanation: data.explanation,
+      modelName: data.model_name,
+      modelVersion: data.model_version,
       timestamp: new Date(data.timestamp)
     };
   },
 
+  async getModelInfo() {
+    return fetchAPI('/predictions/model-info');
+  },
+
   async getDashboardData() {
     const alerts = await fetchAPI('/alerts');
-    
+
     const activeAlerts = alerts.filter(a => a.status === 'active').length;
     const highRiskAreas = alerts.filter(a =>
       a.risk_level === 'HIGH' || a.risk_level === 'CRITICAL'
@@ -107,7 +124,7 @@ export const api = {
     let query = '';
     if (filters.status) query += `?status=${filters.status}`;
     if (filters.riskLevel) query += `${query ? '&' : '?'}risk_level=${filters.riskLevel}`;
-    
+
     const alerts = await fetchAPI(`/alerts${query}`);
     return alerts.map(a => ({
       id: a.id,

@@ -1,4 +1,4 @@
-import { Droplets, Mountain, ArrowUpRight, Compass, Thermometer } from 'lucide-react';
+import { Droplets, Mountain, ArrowUpRight, Compass, CalendarDays, Activity } from 'lucide-react';
 import RiskBadge from './RiskBadge';
 import RiskGauge from './RiskGauge';
 import styles from './RiskCard.module.css';
@@ -9,7 +9,7 @@ const RiskCard = ({ prediction, loading }) => {
       <div className={styles.card}>
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
-          <p>Analyzing terrain & environmental factors...</p>
+          <p>Analyzing terrain &amp; environmental factors...</p>
         </div>
       </div>
     );
@@ -27,7 +27,10 @@ const RiskCard = ({ prediction, loading }) => {
     );
   }
 
-  const { riskLevel, probability, features, explanation, confidence } = prediction;
+  const { riskLevel, probability, features, explanation, confidence, modelName } = prediction;
+
+  const fmt = (v, decimals = 1) =>
+    v != null ? Number(v).toFixed(decimals) : '—';
 
   return (
     <div className={styles.card}>
@@ -45,6 +48,11 @@ const RiskCard = ({ prediction, loading }) => {
           <div className={styles.confidenceBadge}>
             <span>Confidence: {Math.round(confidence * 100)}%</span>
           </div>
+          {modelName && (
+            <div className={styles.confidenceBadge} style={{ marginTop: '0.25rem', fontSize: '0.7rem' }}>
+              <span>{modelName}</span>
+            </div>
+          )}
         </div>
 
         <div className={styles.featuresGrid}>
@@ -53,8 +61,18 @@ const RiskCard = ({ prediction, loading }) => {
               <Droplets size={20} />
             </div>
             <div className={styles.featureInfo}>
-              <span className={styles.featureLabel}>Rainfall</span>
-              <span className={styles.featureValue}>{features.rainfall} mm</span>
+              <span className={styles.featureLabel}>Rainfall 1-day</span>
+              <span className={styles.featureValue}>{fmt(features.rainfall1d)} mm</span>
+            </div>
+          </div>
+
+          <div className={styles.featureItem}>
+            <div className={styles.featureIcon}>
+              <CalendarDays size={20} />
+            </div>
+            <div className={styles.featureInfo}>
+              <span className={styles.featureLabel}>Rainfall 7-day</span>
+              <span className={styles.featureValue}>{fmt(features.rainfall7d)} mm</span>
             </div>
           </div>
 
@@ -63,8 +81,8 @@ const RiskCard = ({ prediction, loading }) => {
               <ArrowUpRight size={20} />
             </div>
             <div className={styles.featureInfo}>
-              <span className={styles.featureLabel}>Slope Angle</span>
-              <span className={styles.featureValue}>{features.slope}°</span>
+              <span className={styles.featureLabel}>Slope</span>
+              <span className={styles.featureValue}>{fmt(features.slopeDegrees)}°</span>
             </div>
           </div>
 
@@ -74,7 +92,7 @@ const RiskCard = ({ prediction, loading }) => {
             </div>
             <div className={styles.featureInfo}>
               <span className={styles.featureLabel}>Elevation</span>
-              <span className={styles.featureValue}>{features.elevation} m</span>
+              <span className={styles.featureValue}>{fmt(features.elevationM, 0)} m</span>
             </div>
           </div>
 
@@ -84,17 +102,17 @@ const RiskCard = ({ prediction, loading }) => {
             </div>
             <div className={styles.featureInfo}>
               <span className={styles.featureLabel}>Soil Moisture</span>
-              <span className={styles.featureValue}>{features.soilMoisture}%</span>
+              <span className={styles.featureValue}>{fmt(features.soilMoisture)}%</span>
             </div>
           </div>
 
           <div className={styles.featureItem}>
             <div className={styles.featureIcon}>
-              <Thermometer size={20} />
+              <Activity size={20} />
             </div>
             <div className={styles.featureInfo}>
-              <span className={styles.featureLabel}>Temperature</span>
-              <span className={styles.featureValue}>{features.temperature}°C</span>
+              <span className={styles.featureLabel}>Rainfall 3-day</span>
+              <span className={styles.featureValue}>{fmt(features.rainfall3d)} mm</span>
             </div>
           </div>
         </div>
@@ -102,7 +120,7 @@ const RiskCard = ({ prediction, loading }) => {
 
       {explanation && (
         <div className={styles.explanationSection}>
-          <h4>Why is this location at risk?</h4>
+          <h4>Risk Assessment Summary</h4>
           <p>{explanation}</p>
         </div>
       )}
