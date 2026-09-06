@@ -1,17 +1,31 @@
-import { useState, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
-import { Navigation, Layers, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Circle, CircleMarker, Popup, useMap } from 'react-leaflet';
+import { Layers, Navigation, Loader2 } from 'lucide-react';
 import { MapClickHandler } from './MapControls';
 import { getRiskColor } from '../../utils/riskUtils';
 import Button from '../common/Button';
 import styles from './RiskMap.module.css';
 
-// Inner component — runs inside MapContainer so useMap() works
-const LocationFlyTo = ({ trigger, coords }) => {
+// Smooth Map Pan/Zoom Updater
+const MapCenterUpdater = ({ center, zoom }) => {
   const map = useMap();
-  if (trigger && coords) {
-    map.flyTo([coords.lat, coords.lng], 14, { animate: true, duration: 1.2 });
-  }
+  useEffect(() => {
+    if (center && center[0] && center[1]) {
+      map.setView(center, zoom || 7);
+      setTimeout(() => map.invalidateSize(), 150);
+    }
+  }, [center, zoom, map]);
+  return null;
+};
+
+// Smooth GPS FlyTo component
+const GpsFlyTo = ({ trigger, coords }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (trigger && coords && coords.lat && coords.lng) {
+      map.flyTo([coords.lat, coords.lng], 13, { animate: true, duration: 1.5 });
+    }
+  }, [trigger, coords, map]);
   return null;
 };
 
@@ -22,70 +36,56 @@ const RiskMap = ({
   showZones = true,
   height = '500px',
   center = [26.2006, 92.9376],
-  zoom = 7
+  zoom = 7,
+  interactive = true,
+  onMapClick,
+  onZoneClick
 }) => {
   const [layers, setLayers] = useState({ zones: showZones, satellite: false });
   const [locating, setLocating] = useState(false);
-  const [locError, setLocError] = useState('');
-  const [flyTarget, setFlyTarget] = useState(null);
-  const [flyTrigger, setFlyTrigger] = useState(false);
+  const [gpsCoords, setGpsCoords] = useState(null);
+  const [gpsTrigger, setGpsTrigger] = useState(false);
+  const [gpsError, setGpsError] = useState('');
 
-  const handleUseMyLocation = () => {
-    setLocError('');
+  const mapCenter = (center && center[0] && center[1]) ? center : [26.2006, 92.9376];
 
+  // GPS Location Finder Handler
+  const handleFindMyLocation = () => {
+    setGpsError('');
     if (!navigator.geolocation) {
-      setLocError('Geolocation is not supported by this browser.');
+      setGpsError('Geolocation is not supported by your browser.');
       return;
     }
 
     setLocating(true);
-
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        // Pass to parent for marker + analysis
-        onLocationSelect(lat, lng);
-
-        // Fly map to user location
-        setFlyTarget({ lat, lng });
-        setFlyTrigger(prev => !prev);
-
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
         setLocating(false);
+        setGpsCoords({ lat, lng });
+        setGpsTrigger(prev => !prev);
+
+        if (onLocationSelect) onLocationSelect(lat, lng);
+        if (onMapClick) onMapClick({ lat, lng });
       },
-      (error) => {
+      (err) => {
         setLocating(false);
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            setLocError('Location permission denied. Please allow location access in your browser and try again.');
-            break;
-          case error.POSITION_UNAVAILABLE:
-            setLocError('Location unavailable. Please select a point on the map manually.');
-            break;
-          case error.TIMEOUT:
-            setLocError('Location request timed out. Please try again.');
-            break;
-          default:
-            setLocError('Unable to get your location. Please select a point on the map manually.');
-        }
+        setGpsError('Unable to retrieve GPS coordinates. Please grant location access in browser.');
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
   return (
     <div className={styles.mapWrapper} style={{ height }}>
       <MapContainer
-        center={center}
+        center={mapCenter}
         zoom={zoom}
         style={{ height: '100%', width: '100%' }}
         className={styles.leafletContainer}
       >
+        {/* OpenStreetMap Base Tiles */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url={
@@ -95,55 +95,139 @@ const RiskMap = ({
           }
         />
 
-        <MapClickHandler onLocationSelect={onLocationSelect} />
+        <MapCenterUpdater center={mapCenter} zoom={zoom} />
+        <GpsFlyTo trigger={gpsTrigger} coords={gpsCoords} />
 
-        {/* Fly to user location when triggered */}
-        <LocationFlyTo trigger={flyTrigger} coords={flyTarget} />
-
-        {selectedLocation && (
-          <Marker position={[selectedLocation.lat, selectedLocation.lng]}>
-            <Popup>
-              <div className={styles.popup}>
-                <strong>Selected Location</strong>
-                <p>Lat: {selectedLocation.lat.toFixed(6)}</p>
-                <p>Lng: {selectedLocation.lng.toFixed(6)}</p>
-              </div>
-            </Popup>
-          </Marker>
+        {interactive && (
+          <MapClickHandler onLocationSelect={(lat, lng) => {
+            if (onLocationSelect) onLocationSelect(lat, lng);
+            if (onMapClick) onMapClick({ lat, lng });
+          }} />
         )}
 
-        {layers.zones && riskZones.map((zone) => (
-          <Circle
-            key={zone.id}
-            center={[zone.latitude, zone.longitude]}
-            radius={zone.radius}
+        {/* Live GPS Location User Marker (Blue Pulse Dot) */}
+        {gpsCoords && (
+          <CircleMarker
+            center={[gpsCoords.lat, gpsCoords.lng]}
+            radius={9}
             pathOptions={{
-              color: getRiskColor(zone.riskLevel),
-              fillColor: getRiskColor(zone.riskLevel),
-              fillOpacity: 0.3
+              color: '#ffffff',
+              weight: 2.5,
+              fillColor: '#2563eb',
+              fillOpacity: 1.0
             }}
           >
             <Popup>
               <div className={styles.popup}>
-                <strong>{zone.name}</strong>
-                <p>Risk: <span style={{ color: getRiskColor(zone.riskLevel), fontWeight: 'bold' }}>{zone.riskLevel}</span></p>
-                <p>Probability: {Math.round(zone.probability * 100)}%</p>
+                <strong style={{ color: '#1d4ed8' }}>📍 Your Live GPS Location</strong>
+                <p>Lat: {gpsCoords.lat.toFixed(5)}° N</p>
+                <p>Lng: {gpsCoords.lng.toFixed(5)}° E</p>
+                <p style={{ fontSize: '0.7rem', color: '#64748b' }}>Accuracy: High GPS Telemetry</p>
               </div>
             </Popup>
-          </Circle>
-        ))}
+          </CircleMarker>
+        )}
+
+        {/* Selected Target Point (Red/Orange Dot) */}
+        {selectedLocation && selectedLocation.lat && selectedLocation.lng && (
+          <CircleMarker
+            center={[selectedLocation.lat, selectedLocation.lng]}
+            radius={8}
+            pathOptions={{
+              color: '#ffffff',
+              weight: 2,
+              fillColor: '#dc2626',
+              fillOpacity: 1.0
+            }}
+          >
+            <Popup>
+              <div className={styles.popup}>
+                <strong>Target Location</strong>
+                <p>Lat: {selectedLocation.lat.toFixed(4)}° N</p>
+                <p>Lng: {selectedLocation.lng.toFixed(4)}° E</p>
+              </div>
+            </Popup>
+          </CircleMarker>
+        )}
+
+        {/* Risk Zones & Stations — Clean GIS Circles & Risk Dots */}
+        {layers.zones && riskZones.map((zone) => {
+          const zLat = zone.latitude || zone.lat;
+          const zLng = zone.longitude || zone.lng;
+          const level = zone.riskLevel || zone.risk_level || 'LOW';
+          const prob = zone.probability || zone.risk_probability || 0.3;
+          const color = getRiskColor(level);
+
+          if (!zLat || !zLng) return null;
+
+          return (
+            <div key={zone.id || `${zLat}_${zLng}`}>
+              <Circle
+                center={[zLat, zLng]}
+                radius={zone.radius || 2000}
+                pathOptions={{
+                  color: color,
+                  fillColor: color,
+                  fillOpacity: 0.25,
+                  weight: 1.5
+                }}
+                eventHandlers={{
+                  click: () => {
+                    if (onZoneClick) onZoneClick(zone);
+                  }
+                }}
+              >
+                <Popup>
+                  <div className={styles.popup}>
+                    <strong>{zone.name}</strong>
+                    <p>Risk: <span style={{ color: color, fontWeight: 'bold' }}>{level}</span></p>
+                    <p>Probability: {Math.round(prob * 100)}%</p>
+                  </div>
+                </Popup>
+              </Circle>
+
+              <CircleMarker
+                center={[zLat, zLng]}
+                radius={5}
+                pathOptions={{
+                  color: '#ffffff',
+                  weight: 1.5,
+                  fillColor: color,
+                  fillOpacity: 0.9
+                }}
+                eventHandlers={{
+                  click: () => {
+                    if (onZoneClick) onZoneClick(zone);
+                  }
+                }}
+              >
+                <Popup>
+                  <div className={styles.popup}>
+                    <strong>{zone.name}</strong>
+                    <p>Coordinates: {zLat.toFixed(4)}°, {zLng.toFixed(4)}°</p>
+                    <p>Risk: <span style={{ color: color, fontWeight: 'bold' }}>{level}</span> ({Math.round(prob * 100)}%)</p>
+                    {zone.elevation_m && <p>Elevation: {zone.elevation_m} m</p>}
+                    {zone.slope_degrees && <p>Slope: {zone.slope_degrees}°</p>}
+                  </div>
+                </Popup>
+              </CircleMarker>
+            </div>
+          );
+        })}
       </MapContainer>
 
+      {/* Floating GIS & GPS Controls */}
       <div className={styles.mapControls}>
         <Button
-          variant="secondary"
+          variant="primary"
           size="small"
           icon={locating ? Loader2 : Navigation}
-          onClick={handleUseMyLocation}
+          onClick={handleFindMyLocation}
           disabled={locating}
         >
-          {locating ? 'Locating...' : 'My Location'}
+          {locating ? 'Locating GPS...' : '📍 GPS Location Finder'}
         </Button>
+
         <Button
           variant="secondary"
           size="small"
@@ -154,10 +238,10 @@ const RiskMap = ({
         </Button>
       </div>
 
-      {locError && (
+      {gpsError && (
         <div className={styles.locationError}>
-          <span>⚠ {locError}</span>
-          <button onClick={() => setLocError('')}>✕</button>
+          <span>⚠ {gpsError}</span>
+          <button onClick={() => setGpsError('')}>✕</button>
         </div>
       )}
     </div>

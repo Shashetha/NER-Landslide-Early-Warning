@@ -1,6 +1,14 @@
 import os
+import re
 import logging
 from contextlib import contextmanager
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Ensure .env is always loaded from backend directory
+_backend_dir = Path(__file__).resolve().parent
+load_dotenv(_backend_dir / ".env")
 
 import mysql.connector
 from mysql.connector import pooling
@@ -28,7 +36,7 @@ def init_pool() -> None:
     try:
         _pool = pooling.MySQLConnectionPool(**config)
         logger.info(
-            "MySQL connection pool created → %s:%s/%s",
+            "MySQL connection pool created -> %s:%s/%s",
             config["host"], config["port"], config["database"],
         )
     except Exception as exc:
@@ -58,8 +66,11 @@ def init_schema() -> None:
     with open(schema_path, "r", encoding="utf-8") as f:
         sql = f.read()
 
-    statements = [s.strip() for s in sql.split(";") if s.strip()]
+    # Remove SQL line comments
+    clean_sql = re.sub(r'--[^\n]*', '', sql)
+    statements = [s.strip() for s in clean_sql.split(";") if s.strip()]
+
     with get_db() as cur:
         for stmt in statements:
             cur.execute(stmt)
-    logger.info("Database schema initialised")
+    logger.info("Database schema initialised successfully")

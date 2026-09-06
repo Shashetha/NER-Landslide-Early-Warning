@@ -1,72 +1,78 @@
 .mapWrapper {
   position: relative;
   width: 100%;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
+  background: #f8fafc;
 }
 
 .leafletContainer {
-  z-index: 10;
+  height: 100%;
+  width: 100%;
+  font-family: inherit;
+  z-index: 1;
 }
 
+/* Polished Government Floating Map Controls Bar */
 .mapControls {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  z-index: 40;
+  z-index: 500;
   display: flex;
   gap: 0.5rem;
-  background: var(--white);
-  padding: 0.25rem;
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border-color);
-}
-
-.popup {
-  padding: 0.25rem;
-}
-
-.popup strong {
-  display: block;
-  font-size: 0.875rem;
-  margin-bottom: 0.25rem;
-}
-
-.popup p {
-  margin: 0;
-  font-size: 0.75rem;
-  color: var(--text-dark);
+  background: #ffffff;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  border: 1px solid #cbd5e1;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .locationError {
   position: absolute;
-  bottom: 1rem;
+  bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 500;
-  background: #fff3cd;
-  border: 1px solid #ffc107;
-  color: #856404;
-  padding: 0.6rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.8125rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   box-shadow: var(--shadow-md);
-  max-width: 90%;
 }
 
 .locationError button {
   background: none;
   border: none;
-  color: #856404;
-  font-size: 1rem;
+  color: #b91c1c;
   cursor: pointer;
-  line-height: 1;
-  padding: 0;
-  flex-shrink: 0;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.popup {
+  padding: 0.25rem 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.popup strong {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  margin-bottom: 0.2rem;
+}
+
+.popup p {
+  font-size: 0.8rem;
+  color: var(--text-medium);
+  margin: 0.15rem 0;
 }

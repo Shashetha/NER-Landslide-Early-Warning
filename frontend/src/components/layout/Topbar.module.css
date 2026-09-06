@@ -4,73 +4,76 @@
   left: var(--sidebar-width);
   right: 0;
   height: var(--topbar-height);
-  background: var(--white);
-  border-bottom: 2px solid var(--border-color);
+  background: #ffffff;
+  border-bottom: 1px solid #cbd5e1;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2rem;
-  z-index: 500;
-  transition: left 0.3s ease;
+  padding: 0 2.5rem;
+  z-index: 450;
+  transition: left 0.25s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .topbarLeft {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .menuButton {
   display: none;
   padding: 0.5rem;
-  background: var(--bg-hover);
-  border: 1px solid var(--border-color);
-  color: var(--text-medium);
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
   border-radius: var(--radius-sm);
   cursor: pointer;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.15s;
 }
 
 .menuButton:hover {
-  background: var(--border-color);
-  color: var(--text-dark);
+  background: #e2e8f0;
+  color: #0f172a;
 }
 
 .topbarTitle {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  letter-spacing: -0.01em;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
 }
 
 .topbarRight {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .topbarButton {
-  width: 36px;
-  height: 36px;
-  background: var(--bg-light);
-  border: 1px solid var(--border-color);
-  color: var(--text-medium);
+  width: 40px;
+  height: 40px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #475569;
   border-radius: var(--radius-sm);
   cursor: pointer;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .topbarButton:hover, .topbarButton.active {
-  background: var(--bg-hover);
-  color: var(--text-dark);
-  border-color: var(--secondary-color);
+  background: #f8fafc;
+  color: #1d4ed8;
+  border-color: #1d4ed8;
+  box-shadow: 0 2px 4px rgba(29, 78, 216, 0.15);
 }
 
 .notificationBadge {
@@ -79,31 +82,33 @@
   right: -4px;
   min-width: 18px;
   height: 18px;
-  background: var(--danger-color);
+  background: #dc2626;
   color: #ffffff;
   font-size: 0.65rem;
-  font-weight: 700;
+  font-weight: 800;
   border-radius: 9999px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 4px;
-  border: 2px solid var(--white);
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .notificationDropdown {
   position: absolute;
-  top: calc(100% + 10px);
+  top: calc(100% + 12px);
   right: 0;
-  width: 380px;
-  background: var(--white);
-  border: 1px solid var(--border-color);
+  width: 400px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.12), 0 6px 12px -6px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   z-index: 1000;
   animation: dropdownIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
 }
 
 @keyframes dropdownIn {
@@ -121,33 +126,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-light);
+  padding: 1.1rem 1.35rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
 }
 
 .dropdownHeader h3 {
   font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text-dark);
+  font-weight: 800;
+  color: #0f172a;
 }
 
 .dropdownHeader p {
   font-size: 0.75rem;
-  color: var(--text-light);
-}
-
-.markReadBtn {
-  background: none;
-  border: none;
-  font-size: 0.75rem;
-  color: var(--secondary-color);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.markReadBtn:hover {
-  text-decoration: underline;
+  color: #64748b;
+  margin-top: 0.1rem;
 }
 
 .notificationList {
@@ -159,25 +152,25 @@
 
 .notificationItem {
   display: flex;
-  gap: 0.75rem;
-  padding: 0.85rem 1.25rem;
-  border-bottom: 1px solid var(--border-color);
+  gap: 0.85rem;
+  padding: 1rem 1.35rem;
+  border-bottom: 1px solid #f1f5f9;
   text-decoration: none;
   transition: background 0.15s;
 }
 
 .notificationItem:hover {
-  background: var(--bg-hover);
+  background: #f8fafc;
 }
 
 .notificationItem.unread {
-  background: var(--bg-light);
-  border-left: 3px solid var(--secondary-color);
+  background: #fff7ed;
+  border-left: 3px solid #ea580c;
 }
 
 .alertIndicator {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -186,23 +179,23 @@
 }
 
 .alertIndicator.critical {
-  background: var(--critical-light);
-  color: var(--critical-color);
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
 .alertIndicator.high {
-  background: var(--danger-light);
-  color: var(--danger-color);
+  background: #ffedd5;
+  color: #ea580c;
 }
 
 .alertIndicator.medium {
-  background: var(--warning-light);
-  color: var(--warning-color);
+  background: #fef3c7;
+  color: #b45309;
 }
 
 .alertIndicator.low {
-  background: var(--success-light);
-  color: var(--success-color);
+  background: #ecfdf5;
+  color: #047857;
 }
 
 .notificationContent {
@@ -219,99 +212,92 @@
 }
 
 .alertLocation {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-dark);
-}
-
-.alertTime {
-  font-size: 0.7rem;
-  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .alertDesc {
-  font-size: 0.75rem;
-  color: var(--text-light);
-  line-height: 1.35;
-  margin: 0.15rem 0;
+  font-size: 0.78rem;
+  color: #475569;
+  line-height: 1.4;
+  margin: 0.2rem 0;
 }
 
 .riskTag {
   align-self: flex-start;
   font-size: 0.65rem;
-  font-weight: 700;
-  padding: 0.15rem 0.4rem;
-  border-radius: 3px;
+  font-weight: 800;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .riskTag.critical {
-  background: var(--critical-color);
+  background: #dc2626;
   color: #ffffff;
 }
 
 .riskTag.high {
-  background: var(--danger-color);
+  background: #ea580c;
   color: #ffffff;
 }
 
 .riskTag.medium {
-  background: var(--warning-color);
+  background: #d97706;
   color: #ffffff;
 }
 
 .riskTag.low {
-  background: var(--success-color);
+  background: #059669;
   color: #ffffff;
 }
 
 .emptyNotifications {
-  padding: 2.5rem 1.5rem;
+  padding: 3rem 1.5rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  color: var(--text-light);
+  color: #64748b;
   font-size: 0.85rem;
 }
 
-.emptyIcon {
-  color: var(--success-color);
-}
-
 .dropdownFooter {
-  padding: 0.75rem;
-  background: var(--bg-light);
-  border-top: 1px solid var(--border-color);
+  padding: 0.85rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
   text-align: center;
-  border-bottom-left-radius: var(--radius-md);
-  border-bottom-right-radius: var(--radius-md);
 }
 
 .dropdownFooter a {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--secondary-color);
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.dropdownFooter a:hover {
+  text-decoration: underline;
 }
 
 .userAvatar {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-sm);
-  background: var(--primary-light);
+  background: #1e293b;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.05em;
-  cursor: pointer;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  border: 1px solid #334155;
 }
 
 @media (max-width: 1024px) {
@@ -325,7 +311,7 @@
   }
 
   .notificationDropdown {
-    width: 300px;
-    right: -20px;
+    width: 320px;
+    right: -10px;
   }
 }

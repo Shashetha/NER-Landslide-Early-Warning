@@ -4,10 +4,22 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>landslide-monitoring</title>
+    <meta name="theme-color" content="#1e3a8a" />
+    <meta name="description" content="AI-Powered Landslide Early Warning, GIS Heatmaps, and Disaster Management for North East India" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>NER Landslide Early Warning & Disaster Platform</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch((err) => {
+            console.log('Service Worker registration skipped:', err);
+          });
+        });
+      }
+    </script>
   </body>
 </html>

@@ -1,7 +1,10 @@
-from fastapi import APIRouter, HTTPException
-from schemas.prediction import LocationRequest, PredictionResponse
+import logging
+import os
+from fastapi import APIRouter, HTTPException, Query
+from schemas.prediction import LocationRequest, PredictionResponse, MultiHazardForecastResponse
 from services.prediction_service import prediction_service
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -9,20 +12,6 @@ router = APIRouter()
 async def predict_landslide_risk(location: LocationRequest):
     """
     Predict landslide risk for a given location using the trained Random Forest model.
-
-    Required:
-    - latitude, longitude
-
-    Optional environmental inputs (estimated from distributions if not provided):
-    - rainfall_1d  : 1-day cumulative rainfall (mm)
-    - rainfall_3d  : 3-day cumulative rainfall (mm)
-    - rainfall_7d  : 7-day cumulative rainfall (mm)
-    - elevation_m  : elevation (meters)
-    - slope_degrees: slope angle (degrees)
-    - soil_moisture: volumetric soil moisture (%)
-
-    Returns risk level (LOW / MEDIUM / HIGH / CRITICAL), probability, confidence,
-    feature values, and a natural-language explanation.
     """
     try:
         prediction = await prediction_service.predict_landslide_risk(
@@ -36,47 +25,55 @@ async def predict_landslide_risk(location: LocationRequest):
             soil_moisture=location.soil_moisture,
         )
         return prediction
-
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Prediction failed: {str(e)}"
+        logger.error("Prediction failed: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+
+
+@router.post("/predictions/multi-hazard-forecast", response_model=MultiHazardForecastResponse)
+async def predict_multi_hazard_forecast(location: LocationRequest):
+    """
+    FUTURE RISK PREDICTION ENGINE:
+    Evaluates rolling multi-day ML model inference for:
+    - 24-hour Landslide Risk Forecast
+    - 48-hour Landslide Risk Forecast
+    - 72-hour Landslide Risk Forecast
+    - 7-Day Rainfall Surge (mm) & Soil Saturation
+    - 7-Day Flash Flood Susceptibility Score & Risk Level
+    """
+    try:
+        return await prediction_service.predict_multi_hazard_forecast(
+            latitude=location.latitude,
+            longitude=location.longitude
         )
+    except Exception as e:
+        logger.error("Multi-hazard forecast failed: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Multi-hazard forecast failed: {str(e)}")
 
 
 @router.get("/predictions/model-info")
 async def get_model_info():
-    """Get current ML model information and feature schema."""
+    """Get current ML model metadata and feature specification."""
+    from ml.FEATURES import (
+        FEATURE_NAMES, FEATURE_UNITS, FEATURE_TRAINING_RANGES,
+        IMPUTER_MEDIANS, RISK_THRESHOLDS
+    )
     svc = prediction_service
     return {
         "model_name": svc.model_name,
         "model_version": svc.model_version,
-        "status": "live" if svc._final_model is not None else "fallback",
-        "description": (
-            "Random Forest classifier trained on NER landslide events + background samples. "
-            "Features: rainfall (1d/3d/7d), elevation, slope, soil moisture."
-        ),
-        "models_loaded": {
-            "final_model": svc._final_model is not None,
-            "rainfall_model": svc._rainfall_pkg is not None,
+        "status": "live" if svc._model is not None else "unavailable",
+        "features": {
+            name: {
+                "unit": FEATURE_UNITS[name],
+                "training_range": list(FEATURE_TRAINING_RANGES[name]),
+                "imputer_median": IMPUTER_MEDIANS[name],
+            }
+            for name in FEATURE_NAMES
         },
-        "required_inputs": {
-            "latitude": "float (-90 to 90)",
-            "longitude": "float (-180 to 180)",
-        },
-        "optional_inputs": {
-            "rainfall_1d": "float — 1-day rainfall (mm)",
-            "rainfall_3d": "float — 3-day rainfall (mm)",
-            "rainfall_7d": "float — 7-day rainfall (mm)",
-            "elevation_m": "float — elevation (m)",
-            "slope_degrees": "float — slope angle (°)",
-            "soil_moisture": "float — soil moisture (%)",
-        },
-        "output_format": {
-            "risk_level": "LOW | MEDIUM | HIGH | CRITICAL",
-            "probability": "float (0–1)",
-            "confidence": "float (0–1)",
-            "features": "EnvironmentalFeatures object",
-            "explanation": "Natural-language risk explanation",
-        },
+        "feature_order": FEATURE_NAMES,
+        "risk_thresholds": RISK_THRESHOLDS,
+        "soil_moisture_scale": "fraction (0.0 - 1.0, volumetric m3/m3)",
     }

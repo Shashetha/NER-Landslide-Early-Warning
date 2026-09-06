@@ -4,39 +4,43 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(8, 14, 26, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
-  animation: fadeIn 0.2s ease-out;
+  padding: 1.25rem;
+  animation: fadeIn 0.15s ease-out;
 }
 
 .modal {
-  background: var(--white);
+  background: #ffffff;
   border-radius: var(--radius-md);
   width: 100%;
+  max-width: 620px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-  animation: slideUp 0.25s ease-out;
+  box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.25), 0 10px 15px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #cbd5e1;
+  animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 2px solid var(--border-color);
-  background: var(--bg-light);
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
 }
 
 .header h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 800;
   color: var(--text-dark);
+  letter-spacing: -0.015em;
 }
 
 .closeButton {
@@ -44,7 +48,7 @@
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 0.25rem;
+  padding: 0.35rem;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -54,11 +58,11 @@
 
 .closeButton:hover {
   color: var(--text-dark);
-  background: var(--bg-hover);
+  background: #e2e8f0;
 }
 
 .content {
-  padding: 1.5rem;
+  padding: 1.75rem;
   overflow-y: auto;
 }
 
@@ -70,10 +74,10 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(12px) scale(0.99);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }

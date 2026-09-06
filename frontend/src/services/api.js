@@ -1,10 +1,14 @@
-const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+const API_BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) 
+  ? import.meta.env.VITE_API_URL 
+  : 'http://127.0.0.1:8000/api/v1';
 
 async function fetchAPI(endpoint, options = {}) {
+  const token = localStorage.getItem('auth_token');
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       ...options.headers
     }
   });
@@ -18,6 +22,28 @@ async function fetchAPI(endpoint, options = {}) {
 }
 
 export const api = {
+  async login(username, password) {
+    const formData = new URLSearchParams();
+    formData.append('username', username);
+    formData.append('password', password);
+
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData.toString()
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.detail || 'Login failed');
+    }
+    const data = await response.json();
+    if (data.access_token) {
+      localStorage.setItem('auth_token', data.access_token);
+      localStorage.setItem('auth_user', JSON.stringify(data.user));
+    }
+    return data;
+  },
+
   async getRiskPrediction(latitude, longitude, environmentalData = {}) {
     const body = {
       latitude,
@@ -57,67 +83,56 @@ export const api = {
     };
   },
 
+  async getMultiHazardForecast(latitude, longitude) {
+    return fetchAPI('/predictions/multi-hazard-forecast', {
+      method: 'POST',
+      body: JSON.stringify({ latitude, longitude })
+    });
+  },
+
   async getModelInfo() {
     return fetchAPI('/predictions/model-info');
   },
 
   async getDashboardData() {
-    const alerts = await fetchAPI('/alerts');
-
-    const activeAlerts = alerts.filter(a => a.status === 'active').length;
-    const highRiskAreas = alerts.filter(a =>
-      a.risk_level === 'HIGH' || a.risk_level === 'CRITICAL'
-    ).length;
-
+    const summary = await fetchAPI('/dashboard/summary');
     return {
-      statistics: {
-        monitoredLocations: 124,
-        highRiskAreas,
-        activeAlerts,
-        reportsToday: 36
-      },
-      riskDistribution: { low: 58, medium: 24, high: 13, critical: 5 },
+      statistics: summary.statistics,
+      riskDistribution: summary.riskDistribution,
       rainfallData: {
-        last24Hours: [
-          { time: '00:00', rainfall: 12 }, { time: '03:00', rainfall: 18 },
-          { time: '06:00', rainfall: 25 }, { time: '09:00', rainfall: 32 },
-          { time: '12:00', rainfall: 28 }, { time: '15:00', rainfall: 42 },
-          { time: '18:00', rainfall: 55 }, { time: '21:00', rainfall: 38 }
-        ],
-        last7Days: [
-          { day: 'Mon', rainfall: 45 }, { day: 'Tue', rainfall: 52 },
-          { day: 'Wed', rainfall: 38 }, { day: 'Thu', rainfall: 65 },
-          { day: 'Fri', rainfall: 78 }, { day: 'Sat', rainfall: 85 },
-          { day: 'Sun', rainfall: 92 }
-        ],
-        last30Days: [
-          { week: 'Week 1', rainfall: 245 }, { week: 'Week 2', rainfall: 312 },
-          { week: 'Week 3', rainfall: 285 }, { week: 'Week 4', rainfall: 398 }
-        ]
+        last7Days: summary.rainfallData?.last7Days || [],
+        total7d: summary.rainfallData?.total7dRainfall || 0,
       },
-      recentAlerts: alerts.map(a => ({
+      recentAlerts: (summary.recentAlerts || []).map(a => ({
         id: a.id,
         location: a.location,
-        riskLevel: a.risk_level,
+        riskLevel: a.riskLevel,
         probability: a.probability,
-        timestamp: new Date(a.updated_at),
+        timestamp: new Date(a.timestamp),
         latitude: a.latitude,
-        longitude: a.longitude
+        longitude: a.longitude,
+        status: a.status,
       }))
     };
   },
 
   async getRiskZones() {
-    const alerts = await fetchAPI('/alerts');
-    return alerts.map(a => ({
-      id: a.id,
-      name: a.location,
-      latitude: a.latitude,
-      longitude: a.longitude,
-      riskLevel: a.risk_level,
-      probability: a.probability,
-      radius: a.risk_level === 'CRITICAL' ? 3000 : a.risk_level === 'HIGH' ? 2000 : 1500
+    const zones = await fetchAPI('/risk-zones');
+    return zones.map(z => ({
+      id: z.id,
+      name: z.name,
+      latitude: z.latitude,
+      longitude: z.longitude,
+      elevation_m: z.elevation_m,
+      slope_degrees: z.slope_degrees,
+      riskLevel: z.riskLevel,
+      probability: z.probability,
+      radius: z.radius,
     }));
+  },
+
+  async syncLiveAlerts() {
+    return fetchAPI('/alerts/sync', { method: 'POST' });
   },
 
   async getAlerts(filters = {}) {
@@ -141,8 +156,12 @@ export const api = {
     }));
   },
 
-  async getReports() {
-    const data = await fetchAPI('/reports');
+  async getReports(filters = {}) {
+    let query = '';
+    if (filters.state) query += `?state=${encodeURIComponent(filters.state)}`;
+    if (filters.status) query += `${query ? '&' : '?'}status=${filters.status}`;
+
+    const data = await fetchAPI(`/reports${query}`);
     return data.reports || [];
   },
 
@@ -151,11 +170,20 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({
         location: reportData.location,
+        state: reportData.state || 'Meghalaya',
+        district: reportData.district || null,
         latitude: parseFloat(reportData.latitude),
         longitude: parseFloat(reportData.longitude),
-        hazard_type: reportData.hazardType || reportData.hazard_type,
-        severity: reportData.severity,
+        hazard_type: reportData.hazardType || reportData.hazard_type || 'landslide',
+        severity: reportData.severity || 'medium',
         description: reportData.description,
+        visible_cracks: Boolean(reportData.visible_cracks),
+        rockfall_observed: Boolean(reportData.rockfall_observed),
+        road_blocked: Boolean(reportData.road_blocked),
+        water_accumulation: Boolean(reportData.water_accumulation),
+        soil_movement: Boolean(reportData.soil_movement),
+        media_url: reportData.media_url || null,
+        idempotency_key: reportData.idempotency_key || null,
         contact_info: reportData.contactInfo || reportData.contact_info || null
       })
     });
@@ -164,5 +192,21 @@ export const api = {
       reportId: data.report_id,
       message: data.message
     };
+  },
+
+  async deleteReport(reportId) {
+    return fetchAPI(`/reports/${reportId}`, {
+      method: 'DELETE'
+    });
+  },
+
+  async updateReportStatus(reportId, newStatus, adminNotes = '') {
+    return fetchAPI(`/reports/${reportId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        status: newStatus,
+        admin_notes: adminNotes
+      })
+    });
   }
 };
